@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MercSentAI MVP Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .form-section, .results-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .merchant-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .fraud-flags {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .risk-score {
+            text-align: center;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+        .decision {
+            text-align: center;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .decision-approve { background: #d4edda; color: #155724; }
+        .decision-review { background: #fff3cd; color: #856404; }
+        .decision-decline { background: #f8d7da; color: #721c24; }
+        .decision-block { background: #f5c6cb; color: #721c24; }
+        .flag {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .processing-time {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .sample-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .sample-button {
+            background: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ MercSentAI MVP Demo</h1>
+        <p>Unified Fraud Detection & Merchant Intelligence Platform</p>
+        <p>Transform cryptic transaction data into actionable business intelligence</p>
+    </div>
+
+    <div class="container">
+        <div class="form-section">
+            <h2>📊 Transaction Analysis</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="merchant_id">Merchant ID:</label>
+                    <select id="merchant_id" name="merchant_id" required>
+                        <option value="">Select a merchant...</option>
+                        <option value="MCC_5411_12345">MCC_5411_12345 (Grocery Store)</option>
+                        <option value="MCC_5812_67890">MCC_5812_67890 (Fast Food)</option>
+                        <option value="MCC_5999_11111">MCC_5999_11111 (Suspicious Store)</option>
+                        <option value="MCC_4121_22222">MCC_4121_22222 (Transportation)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Transaction Amount ($):</label>
+                    <input type="number" id="amount" name="amount" value="150" min="0" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card_number">Card Number (last 4 digits):</label>
+                    <input type="text" id="card_number" name="card_number" value="1234" maxlength="4" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ip_location">IP Location:</label>
+                    <input type="text" id="ip_location" name="ip_location" value="New York, NY" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="billing_location">Billing Location:</label>
+                    <input type="text" id="billing_location" name="billing_location" value="New York, NY" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="velocity">Transactions per hour:</label>
+                    <input type="number" id="velocity" name="velocity" value="3" min="0" required>
+                </div>
+                
+                <button type="submit">🔍 Analyze Transaction</button>
+            </form>
+            
+            <div class="sample-data">
+                <h3>Sample Data:</h3>
+                <button class="sample-button" onclick="loadSample('low_risk')">Low Risk</button>
+                <button class="sample-button" onclick="loadSample('medium_risk')">Medium Risk</button>
+                <button class="sample-button" onclick="loadSample('high_risk')">High Risk</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>📈 Analysis Results</h2>
+            <div id="results">
+                <p style="text-align: center; color: #666; margin-top: 50px;">
+                    Submit a transaction to see the analysis results
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sampleData = {
+            low_risk: {
+                merchant_id: 'MCC_5411_12345',
+                amount: 45.99,
+                card_number: '1234',
+                ip_location: 'New York, NY',
+                billing_location: 'New York, NY',
+                velocity: 2
+            },
+            medium_risk: {
+                merchant_id: 'MCC_5812_67890',
+                amount: 750,
+                card_number: '5678',
+                ip_location: 'Los Angeles, CA',
+                billing_location: 'New York, NY',
+                velocity: 8
+            },
+            high_risk: {
+                merchant_id: 'MCC_5999_11111',
+                amount: 2500,
+                card_number: '9999',
+                ip_location: 'High Risk City',
+                billing_location: 'New York, NY',
+                velocity: 15
+            }
+        };
+
+        function loadSample(type) {
+            const data = sampleData[type];
+            document.getElementById('merchant_id').value = data.merchant_id;
+            document.getElementById('amount').value = data.amount;
+            document.getElementById('card_number').value = data.card_number;
+            document.getElementById('ip_location').value = data.ip_location;
+            document.getElementById('billing_location').value = data.billing_location;
+            document.getElementById('velocity').value = data.velocity;
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            data.amount = parseFloat(data.amount);
+            data.velocity = parseInt(data.velocity);
+            data.card_valid = true; // Assume valid for demo
+            
+            try {
+                const response = await fetch('/analyze-transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p style="color: red;">Error analyzing transaction</p>';
+            }
+        });
+
+        function displayResults(result) {
+            const riskClass = result.risk_score <= 25 ? 'risk-low' : 
+                            result.risk_score <= 50 ? 'risk-medium' : 
+                            result.risk_score <= 75 ? 'risk-high' : 'risk-high';
+            
+            const decisionClass = result.decision.toLowerCase();
+            
+            const flagsHtml = result.fraud_flags.length > 0 ? 
+                result.fraud_flags.map(flag => `<span class="flag">${flag}</span>`).join('') :
+                '<span style="color: green;">No fraud flags detected</span>';
+            
+            document.getElementById('results').innerHTML = `
+                <div class="result-card">
+                    <h3>Transaction ID: ${result.transaction_id}</h3>
+                    
+                    <div class="merchant-info">
+                        <h4>🏪 Merchant Information</h4>
+                        <p><strong>Name:</strong> ${result.merchant_info.name}</p>
+                        <p><strong>Category:</strong> ${result.merchant_info.category}</p>
+                        <p><strong>Location:</strong> ${result.merchant_info.location}</p>
+                        <p><strong>Risk Level:</strong> ${result.merchant_info.risk_level}</p>
+                        <p><strong>MCC Code:</strong> ${result.merchant_info.mcc_code}</p>
+                    </div>
+                    
+                    <div class="fraud-flags">
+                        <h4>🚨 Fraud Flags</h4>
+                        <p>${flagsHtml}</p>
+                    </div>
+                    
+                    <div class="risk-score ${riskClass}">
+                        Risk Score: ${result.risk_score}/100
+                    </div>
+                    
+                    <div class="decision decision-${decisionClass}">
+                        Decision: ${result.decision}
+                    </div>
+                    
+                    <div class="processing-time">
+                        ⚡ Processing Time: ${result.processing_time}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
